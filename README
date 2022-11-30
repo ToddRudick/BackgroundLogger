@@ -1,0 +1,36 @@
+A printf format compatible background logging class, modified from a version used for years in production low-latency trading code.
+It's currently 40% faster than calling printf directly on my desktop, w/ a larger difference on production boxes (& notably if this is the 
+only output used, you're entirely independent of disk-speed in all cases provided the background thread doesn't run out of queue space).
+
+The format & its arguments are placed onto a queue (with zero-terminated strings copied) & only parsed in a background thread. All format
+arguments are expected/assumed to be static (or at least live until the background therad reads them).
+
+Format checking on gcc is done at compile time if using the INFO/ZZWARN/FATAL macros.
+
+However, note the background thread currently is implemented using boost::format. One giant downside/bug is that this library does not support the glibc extension %z/%Z (for size_t).
+You *must* therefore use %ld instead of %z or you will get a (caught) expection in the logger thread.
+
+Usage:
+
+#include <Logging.h>
+...
+main() {
+  Logging::logOnJunk() = true; // sets the background thread that outputs log messages to the last CPU
+...
+
+  std::string s = "testMe";
+
+  INFO("String contains '%s' which is %ld characters long", s.c_str(), s.size());
+  // outputs:
+  22:28:09.568507 LoggingTest.cpp:83 String contains 'testMe' which is 6 characters long
+
+  ZZWARN("String still contains '%s' which is %ld characters long", s.c_str(), s.size());
+  // outputs: (matching on "!!WARNING!!" is useful for monitoring scripts)
+  22:28:09.568508 LoggingTest.cpp:84 !!WARNING!! String still contains 'testMe' which is 6 characters long
+
+  FATAL("That's all '%s'", s.c_str());
+  // outputs: (and throws an exception, matching on "!!FATAL!!" is useful for monitoring scripts)
+  22:28:09.568509 LoggingTest.cpp:86 !!WARNING!! !!FATAL!! That's all 'testMe'
+
+  // to log arbitrary data directly to a FILE* from the background. Note that this has no gcc compile-time format checking currently
+  Logging::fprintf(stdout, "This is a test of straight logging on line %ld.\n", __LINE__);
