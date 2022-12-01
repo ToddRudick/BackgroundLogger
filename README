@@ -34,3 +34,26 @@ main() {
 
   // to log arbitrary data directly to a FILE* from the background. Note that this has no gcc compile-time format checking currently
   Logging::fprintf(stdout, "This is a test of straight logging on line %ld.\n", __LINE__);
+
+
+----------------
+Some functionality can be overridden by setting a utility singleton held in LoggingHelper::Util::util(). E.g., logging output can be encrypted.
+Make sure the lifetime of this object outlives main as it will be called by the background thread.
+
+namespace LoggingHelper {
+    struct Util {
+      // buffer 'to' must be able to hold len+1 characters. Returns size of ecrypted string
+      virtual size_t encrypt(const char* from, char* to, size_t len); // default copies
+      virtual size_t decrypt(const char* from, char* to, size_t len); // default copies
+      virtual void setJunkThreadAffinity(bool f = true); // default sets to last CPU
+      virtual int realUSleep(useconds_t usec); // calls usleep
+      virtual std::tuple<int, int, int, int64_t> timeParts(int64_t ts=0); // return hours/minutes/seconds/us
+    }
+}
+
+e.g.:
+  struct MyUtil: public LoggingHelper::Util {
+    int realUSleep(useconds_t usec) override { return ::usleep(usec); }
+  };
+  static MyUtil mUtilPtr = new MyUtil();
+  LoggingHelper::Util::util() = myUtilPtr;
