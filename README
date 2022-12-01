@@ -1,4 +1,4 @@
-A printf format compatible background logging class, modified from a version used for years in production low-latency trading code.
+A header-only printf format compatible background logging class, modified from a version used for years in production low-latency trading code.
 It's currently 40% faster than calling printf directly on my desktop, w/ a larger difference on production boxes (& notably if this is the 
 only output used, you're entirely independent of disk-speed in all cases provided the background thread doesn't run out of queue space).
 
