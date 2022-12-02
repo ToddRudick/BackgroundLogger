@@ -7,6 +7,7 @@ TESTS=$(foreach f,LoggingHelperTest MessageQueueTest LoggingTest,tests/$(f))
 all: $(TESTS)
 
 $(BUILDDIR)/%.o: src/%.cpp
+	@mkdir -p $(BUILDDIR)
 	$(CPP) $(CPPFLAGS) "$<" -c -o "$@"
 
 -include $(wildcard $(CURDIR)/build/*.d)
@@ -14,6 +15,7 @@ $(BUILDDIR)/%.o: src/%.cpp
 define build-test
 
 $(1): $$(BUILDDIR)/$(notdir $(1)).o
+	@mkdir -p $$(BUILDDIR)
 	$$(CPP) $$(LDFLAGS) $$^ -o "$$@"
 
 endef
