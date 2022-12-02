@@ -1,3 +1,4 @@
+SHELL=/bin/bash
 CPP=g++
 CPPFLAGS=-O3 -Wall -std=c++11 -Werror -MMD -MP -mtune=native -ffast-math -funsafe-math-optimizations 
 LDFLAGS=-lboost_unit_test_framework
@@ -15,7 +16,7 @@ $(BUILDDIR)/%.o: src/%.cpp
 define build-test
 
 $(1): $$(BUILDDIR)/$(notdir $(1)).o
-	@mkdir -p $$(BUILDDIR)
+	@mkdir -p $$(dir $(1))
 	$$(CPP) $$(LDFLAGS) $$^ -o "$$@"
 
 endef
@@ -25,7 +26,7 @@ tests/LoggingTest: $(CURDIR)/build/Logging.o
 .PHONY: clean
 
 clean:
-	rm -f $(CURDIR)/build/*.o $(TESTS)
+	rm -f $(BUILDDIR)/*.{o,d} $(TESTS)
 
 $(foreach b,$(TESTS),$(eval $(call build-test,$b)))
 
