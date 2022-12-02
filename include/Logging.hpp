@@ -169,7 +169,7 @@ namespace detail {
       pthread_t bg_thread;
       volatile bool _exit = false;
       volatile bool _finished = false;
-      BackgroundLogger::MessageQueue<std::array<char,1024*16> > _mq;
+      Salvo::MessageQueue<std::array<char,1024*16> > _mq;
       volatile int64_t _readCount=0;
 
   };
