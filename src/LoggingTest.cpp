@@ -73,6 +73,7 @@ BOOST_AUTO_TEST_CASE( LoggingTest )
   try {
     FATAL("This is a fatal exception (but I'm catching it)");
   } catch (std::runtime_error& e) {
+    fflush(nullptr);
     fprintf(stderr, "Runtime exception caught! (expected)\n");
   }
   { // test from documentation
@@ -82,9 +83,11 @@ BOOST_AUTO_TEST_CASE( LoggingTest )
     ZZWARN("String still contains '%s' which is %ld characters long", s.c_str(), s.size());
     Logging::sync();
     try {
-      FATAL("That's all '%s'", s.c_str());
+      FATAL("That's all '%s' (expected to be caught)", s.c_str());
     } catch (std::runtime_error& e) {
+      Logging::sync(); // just here to ensure sensible ordering. You don't need to keep calling sync() in production code
       fprintf(stderr, "Another runtime exception caught! (expected)\n");
+      Logging::sync(); // just here to ensure sensible ordering. You don't need to keep calling sync() in production code
     }
     Logging::fprintf(stdout, "This is a test of straight logging on line %ld.\n", __LINE__);
   }
