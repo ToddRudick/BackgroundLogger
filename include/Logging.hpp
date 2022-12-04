@@ -14,6 +14,28 @@
   *  limitations under the License.
   *
 ***/
+
+/**
+  * Usage:
+  *  std::string s = "testMe";
+  *
+  *  INFO("String contains '%s' which is %ld characters long", s.c_str(), s.size());
+  *  // outputs:
+  *  22:28:09.568507 LoggingTest.cpp:83 String contains 'testMe' which is 6 characters long
+  *
+  *  ZZWARN("String still contains '%s' which is %ld characters long", s.c_str(), s.size());
+  *  // outputs: (matching on "!!WARNING!!" is useful for monitoring scripts)
+  *  22:28:09.568508 LoggingTest.cpp:84 !!WARNING!! String still contains 'testMe' which is 6 characters long
+  *
+  *  FATAL("That's all '%s'", s.c_str());
+  *  // outputs: (and throws an exception, matching on "!!FATAL!!" is useful for monitoring scripts)
+  *  22:28:09.568509 LoggingTest.cpp:86 !!WARNING!! !!FATAL!! That's all 'testMe'
+  *
+  *  // to log arbitrary data directly to a FILE* from the background. Note that this has no gcc compile-time format checking currently
+  *  Logging::fprintf(stdout, "This is a test of straight logging on line %ld.\n", __LINE__);
+  *
+***/
+
 #ifndef LOGGING_HEADER_DEFINE
 #define LOGGING_HEADER_DEFINE
 
