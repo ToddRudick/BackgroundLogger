@@ -14,6 +14,9 @@
   *  limitations under the License.
   *
 ***/
+
+/** Detail/Internal functions used by Logging.h **/
+
 #ifndef LOGGING_HELPER_DEFINE
 #define LOGGING_HELPER_DEFINE
 
