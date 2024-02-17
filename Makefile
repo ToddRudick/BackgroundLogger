@@ -1,7 +1,7 @@
 SHELL=/bin/bash
-CPP=g++
-CPPFLAGS=-O3 -Wall -std=c++11 -Werror -MMD -MP -mtune=native -ffast-math -funsafe-math-optimizations 
-LDFLAGS=-lboost_unit_test_framework
+CPP=/opt/gcc13.2.0/bin/g++
+CPPFLAGS=-O3 -Wall -std=c++20 -Werror -MMD -MP -mtune=native -ffast-math -funsafe-math-optimizations 
+LDFLAGS=-lboost_unit_test_framework -Wl,-rpath=/opt/gcc13.2.0/lib64
 BUILDDIR=$(CURDIR)/build
 
 TESTS=$(foreach f,LoggingHelperTest MessageQueueTest LoggingTest,tests/$(f))

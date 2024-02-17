@@ -189,10 +189,10 @@ namespace detail {
       }
       static LoggingBackgroundThread* _instance;
       pthread_t bg_thread;
-      volatile bool _exit = false;
-      volatile bool _finished = false;
+      std::atomic<bool> _exit = false;
+      std::atomic<bool> _finished = false;
       Salvo::MessageQueue<std::array<char,1024*16> > _mq;
-      volatile int64_t _readCount=0;
+      std::atomic<int64_t> _readCount=0;
 
   };
 }

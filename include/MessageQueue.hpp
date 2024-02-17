@@ -27,6 +27,8 @@
 #include <cxxabi.h>
 #include <stdexcept>
 #include <string.h>
+#include <cstdint>
+#include <atomic>
 
 class MessageQueueTest;
 namespace Salvo {
@@ -63,8 +65,8 @@ namespace Salvo {
                struct MessageQueueWriteHandle nextWriteSlot();
                // the read handle will increment readcount on going out of scope if there was data, unless abandon() is called.
                // it will return a value compatible with nullptr/NULL/false if there is nothing to read.
-               struct MessageQueueReadHandle recv(volatile int64_t& readcount) const; 
-               volatile int64_t writeCount() const { return(_header._onElement); }
+               struct MessageQueueReadHandle recv(std::atomic<int64_t>& readcount) const; 
+               int64_t writeCount() const { return(_header._onElement); }
 
                // compatibility methods
                void push_back(const PAYLOAD& val) { auto f = nextWriteSlot(); (*f) = val; }
@@ -84,7 +86,7 @@ namespace Salvo {
                struct MessageQueueHeader {
                  char _typeCheck[1024];
                  size_t _lengthCheck;
-                 volatile int64_t _onElement;
+                 std::atomic<int64_t> _onElement;
                  MessageQueueHeader(): _lengthCheck(0), _onElement(0) { }
                } _header;
                NODE _queue[SIZE_ELEMENTS];
@@ -173,7 +175,7 @@ namespace Salvo {
                  private: type* _mq;
                };
                struct MessageQueueReadHandle {
-                 MessageQueueReadHandle(const MessageQueue* mq, volatile int64_t& readcount): _mq(mq), _ready(false), _readcount(&readcount) {
+                 MessageQueueReadHandle(const MessageQueue* mq, std::atomic<int64_t>& readcount): _mq(mq), _ready(false), _readcount(&readcount) {
                    _ready = (mq->_queue[*_readcount & type::mask()]._lapCount == 1 + readcount / type::capacity()); 
                  }
                  const PAYLOAD& operator* () { return _ready ? (_mq->_queue[*_readcount & type::mask()]._data) : *((PAYLOAD*)NULL); }
@@ -209,7 +211,7 @@ namespace Salvo {
                  private:
                  const type* _mq;
                  bool _ready;
-                 volatile int64_t* _readcount;
+                 std::atomic<int64_t>* _readcount;
                };
                friend class ::MessageQueueTest;
                void expectedHeader(MessageQueueHeader& h, const std::string &overrideName_ = "") const;
@@ -263,7 +265,7 @@ namespace Salvo {
     }
 
   template <class PAYLOAD, size_t SIZE_ELEMENTS>
-    typename MessageQueue<PAYLOAD,SIZE_ELEMENTS>::MessageQueueReadHandle MessageQueue<PAYLOAD,SIZE_ELEMENTS>::recv(volatile int64_t& readcount) const {
+    typename MessageQueue<PAYLOAD,SIZE_ELEMENTS>::MessageQueueReadHandle MessageQueue<PAYLOAD,SIZE_ELEMENTS>::recv(std::atomic<int64_t>& readcount) const {
       return MessageQueueReadHandle(this, readcount);
     }
 

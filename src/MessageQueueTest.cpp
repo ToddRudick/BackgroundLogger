@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE( MessageQueueTest )
   static_assert( ((void*)mq._header._typeCheck) == ((void*)&mq), "MessageQueue header must be at the start");
   printf("Type of object: %s\n", mq._header._typeCheck);
   mq.confirmHeader();
-  int64_t readcount = 0;
+  std::atomic<int64_t> readcount = 0;
   auto msg = mq.recv(readcount);
   BOOST_REQUIRE(msg == NULL);
   BOOST_REQUIRE(msg == nullptr);
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE( MessageQueueTest )
         if (i == 0) { // the leader & the reader
           int64_t totalTimeDiff = 0;
           int64_t totalTimeDiffCount = 0;
-          int64_t readCount = 0;
+          std::atomic<int64_t> readCount = 0;
           for (int64_t j = 0; j < RUN_COUNT; ++j) {
             {
               auto f = mq2.nextWriteSlot();
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE( MessageQueueTest )
           }
           fprintf(stderr, "Average time to receive message: %ld nanos\n", totalTimeDiff / std::max<int64_t>(1,totalTimeDiffCount));
         } else {
-          int64_t readCount = 0;
+          std::atomic<int64_t> readCount = 0;
           do {
             auto msg = mq2.recv(readCount);
             if (msg) {
